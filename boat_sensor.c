@@ -3,9 +3,11 @@
 #include "../seatalk_settings.h"
 #include "boat_sensor.h"
 #include "../seatalk/seatalk_protocol.h"
+#include "../seatalk/seatalk_talker.h"
 
 int sensors_initialized = 0;
 
+#define SEATALK_PORT 0
 #define SENSOR_VARIABLE(NAME) sensor_ ## NAME
 #define SENSOR_EXPIRY_TIME(NAME) sensor_##NAME##_expiry
 #define SENSOR_VALUE_TRANSMITTED_VARIABLE(NAME) sensor_##NAME##_transmitted
@@ -45,7 +47,7 @@ void update_##NAME##_sensor(TYPE NAME) {\
   SENSOR_VARIABLE(NAME) = NAME;\
   VALIDATE_SENSOR(NAME);\
   UNTRANSMITTED_SENSOR_VALUE(NAME);\
-  wake_transmitter();\
+  st_wake_transmitter(SEATALK_PORT);\
 }
 
 DEFINE_SENSOR(heading, int);

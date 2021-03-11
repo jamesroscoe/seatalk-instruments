@@ -5,11 +5,12 @@
   #include <linux/delay.h>
 #endif
 
-#include "boat_status.h"
-#include "seatalk_datagram.h"
+#include "../seatalk/seatalk_protocol.h"
+#include "../seatalk/seatalk_talker.h"
+#include "../seatalk/seatalk_datagram.h"
 #include "seatalk_command.h"
-#include "seatalk_protocol.h"
 
+#define SEATALK_PORT 0
 #define MAX_COMMAND_DELAY 3 // seconds
 #define SLEEP_DURATION 100 // milliseconds
 #define MAX_COMMAND_LOOPS MAX_COMMAND_DELAY * 1000 / SLEEP_DURATION
@@ -34,7 +35,7 @@ int send_command(int length) {
   int count = 0;
   command_datagram_position = 0;
   command_datagram_bytes_remaining = length;
-  wake_transmitter();
+  st_wake_transmitter(SEATALK_PORT);
   while (command_datagram_bytes_remaining && (count++ <= MAX_COMMAND_LOOPS)) {
     usleep_range(SLEEP_DURATION, SLEEP_DURATION * 2);
   }
@@ -42,7 +43,7 @@ int send_command(int length) {
 }
 
 int set_lamp_intensity(int level) {
-  return send_command(build_lamp_intensity(command_datagram, level));
+  return send_command(st_build_set_lamp_intensity(command_datagram, level));
 }
 
 //void cancel_mob(void) {
@@ -76,11 +77,11 @@ int set_lamp_intensity(int level) {
 //}
 
 int autopilot_remote_keystroke(ST_AUTOPILOT_COMMAND command) {
-  return send_command(build_autopilot_command(command_datagram, command));
+  return send_command(st_build_autopilot_command(command_datagram, command));
 }
 
 int set_autopilot_response_level(AUTOPILOT_RESPONSE_LEVEL level) {
-  return send_command(build_set_autopilot_response_level(command_datagram, level));
+  return send_command(st_build_set_autopilot_response_level(command_datagram, level));
 }
 
 //void set_autopilot_rudder_gain(int level) {
